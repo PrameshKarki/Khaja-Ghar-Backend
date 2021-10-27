@@ -56,7 +56,7 @@ router.post("/refresh", auth, validator.refreshTokenValidator, refreshController
 
 router.post("/logout", auth, validator.refreshTokenValidator, authController.postLogOut);
 
-router.post("/products", (req, res, next) => {
+router.post("/products",auth,ensureAdmin, (req, res, next) => {
     const singleUpload = upload.single("image");
     singleUpload(req, res, next, (error) => {
         if (error) {

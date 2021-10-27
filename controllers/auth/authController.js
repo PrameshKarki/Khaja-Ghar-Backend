@@ -31,14 +31,15 @@ exports.postRegister = async (req, res, next) => {
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
         // *Prepare model
-        const { name, email } = req.body;
+        const { name, email,role } = req.body;
         let access_token;
         let refresh_token;
         try {
             const result = await User.create({
                 name,
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                role:role|| "customer"
             });
 
             // *Token
