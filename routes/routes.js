@@ -66,6 +66,8 @@ router.post("/products",auth,ensureAdmin, (req, res, next) => {
     })
 }, validator.productValidator, productController.postAddProduct);
 
+router.post("/cart",productController.postCart);
+
 router.put("/products/:productID", auth, ensureAdmin, (req, res, next) => {
     const singleUpload = upload.single("image");
     singleUpload(req, res, next, (error) => {

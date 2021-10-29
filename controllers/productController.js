@@ -18,7 +18,7 @@ exports.postAddProduct = async (req, res, next) => {
     if (errors.isEmpty()) {
         // TODO:Proceed further logic
         const body = JSON.parse(JSON.stringify(req.body));
-        const { name, price} = body;
+        const { name, price } = body;
         let document;
         try {
             document = await Product.create({
@@ -101,30 +101,30 @@ exports.putUpdateProduct = async (req, res, next) => {
 }
 
 // *Method to fetch all the products from the database
-exports.getProducts=async(req,res,next)=>{
+exports.getProducts = async (req, res, next) => {
     try {
-        const products=await Product.find().select("-createdAt -updatedAt -__v").sort({_id:-1});
-        if(products.length>0){
+        const products = await Product.find().select("-createdAt -updatedAt -__v").sort({ _id: -1 });
+        if (products.length > 0) {
             return res.json(products);
-        }else{
+        } else {
             return next(CustomErrorHandler.notFound("Products not found!"));
         }
-        
+
     } catch (error) {
         return next(CustomErrorHandler.serverError());
     }
 }
 
 // *Method to fetch single productDetails from the database
-exports.getProduct=async (req,res,next)=>{
+exports.getProduct = async (req, res, next) => {
     try {
-        const product=await Product.findOne({_id:req.params.productID}).select("-createdAt -updatedAt -__v");
-        if(product){
+        const product = await Product.findOne({ _id: req.params.productID }).select("-createdAt -updatedAt -__v");
+        if (product) {
             res.json(product);
-        }else{
+        } else {
             return next(CustomErrorHandler.notFound("Product not found!"));
         }
-        
+
     } catch (error) {
         console.log(error);
         return next(CustomErrorHandler.serverError());
@@ -132,24 +132,44 @@ exports.getProduct=async (req,res,next)=>{
 }
 
 // *Method to delete product from the database
-exports.deleteProduct=async(req,res,next)=>{
+exports.deleteProduct = async (req, res, next) => {
     try {
-        const document=await Product.findOneAndDelete().select("-createdAt -updatedAt -__v");
-        if(document){
+        const document = await Product.findOneAndDelete().select("-createdAt -updatedAt -__v");
+        if (document) {
             // !Remove image from database too
-            fs.unlink(`${appRoot}/${document._doc.image}`,(err)=>{
-                if(err){
+            fs.unlink(`${appRoot}/${document._doc.image}`, (err) => {
+                if (err) {
                     return next(CustomErrorHandler.serverError());
                 }
                 return res.json(document);
             })
 
-        }else{
+        } else {
             return next(CustomErrorHandler.notFound("Product not found!"));
         }
     } catch (error) {
         return next(CustomErrorHandler.serverError());
     }
+}
+
+exports.postCart = async (req, res, next) => {
+    const body = JSON.parse(JSON.stringify(req.body));
+    const { products } = body;
+
+    let data;
+
+    if (products.length > 0) {
+        try {
+            data = await Product.find({ _id: products }).select("-createdAt -updatedAt -__v");
+        } catch (err) {
+            return next(CustomErrorHandler.serverError());
+        }
+    } else {
+        return res.status(200).json([]);
+    }
+
+    return res.status(200).json(data);
+
 }
 
 // let formattedURL = url.format({
